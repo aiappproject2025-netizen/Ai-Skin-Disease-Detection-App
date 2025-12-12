@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 from flask import Flask, request, jsonify
-import tensorflow.lite as tflite  # Optimized AI Library
+import tensorflow.lite as tflite
 from PIL import Image
 import io
 
@@ -54,8 +54,9 @@ except Exception as e:
 
 # --- SEVERITY LOGIC (OpenCV) ---
 def calculate_severity(image):
-    # Convert PIL Image to OpenCV format
+    # Convert PIL Image to OpenCV format (numpy array)
     img_array = np.array(image)
+    
     # Convert RGB to BGR (OpenCV standard)
     img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
     
@@ -68,19 +69,30 @@ def calculate_severity(image):
     lower_red2 = np.array([170, 70, 50])
     upper_red2 = np.array([180, 255, 255])
     
+    # Create masks
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = mask1 | mask2
     
-    # Calculate Ratio
+    # Calculate Ratio of Red Pixels
     red_pixels = cv2.countNonZero(mask)
     total_pixels = img.shape[0] * img.shape[1]
     redness_ratio = (red_pixels / total_pixels) * 100
     
-    if redness_ratio < 5: return "Mild"
-    elif redness_ratio < 15: return "Moderate"
-    else: return "Severe"
+    # Determine Logic
+    if redness_ratio < 5:
+        return "Mild"
+    elif redness_ratio < 15:
+        return "Moderate"
+    else:
+        return "Severe"
 
+# --- HOME ROUTE (CRITICAL FOR CRON JOB) ---
+@app.route('/', methods=['GET'])
+def home():
+    return "✅ Skin Doctor AI is Running! Use the App to analyze.", 200
+
+# --- PREDICTION ROUTE ---
 @app.route("/predict", methods=["POST"])
 def predict():
     if "image" not in request.files:
@@ -88,28 +100,29 @@ def predict():
 
     try:
         file = request.files["image"]
-        # Read image
+        
+        # 1. Read Image
         image = Image.open(io.BytesIO(file.read())).convert('RGB')
         
-        # 1. Preprocess for AI (Resize & Normalize)
+        # 2. Preprocess for AI (Resize & Normalize)
         img_resized = image.resize((224, 224))
         input_data = np.expand_dims(img_resized, axis=0)
         input_data = (np.float32(input_data) / 255.0)
 
-        # 2. Run Inference (TFLite Way)
+        # 3. Run Inference (TFLite Way)
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
         output_data = interpreter.get_tensor(output_details[0]['index'])
         
-        # 3. Get Prediction
+        # 4. Get Prediction
         class_index = np.argmax(output_data[0])
         disease_name = CLASSES[class_index]
         confidence = float(output_data[0][class_index]) * 100
         
-        # 4. Calculate Severity (Using original image)
+        # 5. Calculate Severity (Using original high-res image for accuracy)
         severity_status = calculate_severity(image)
         
-        # 5. Get Advice
+        # 6. Fetch Remedy
         advice = REMEDIES.get(disease_name, {}).get(severity_status, "Consult a doctor.")
 
         return jsonify({
