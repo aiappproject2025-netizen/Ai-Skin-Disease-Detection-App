@@ -9,7 +9,7 @@ import io
 app = Flask(__name__)
 
 # --- CONFIGURATION ---
-MODEL_PATH = "model.tflite"  # Using the lightweight model
+MODEL_PATH = "model1.tflite"  # Using the lightweight model
 CLASSES = ['Acne', 'Eczema', 'Psoriasis', 'Melanoma', 'Normal']
 
 # --- DATABASE (From your Project) ---
