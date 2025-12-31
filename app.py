@@ -106,12 +106,12 @@ def calculate_severity(image):
     
     # CASE 1: MILD
     # Logic: Little total coverage (< 13%)
-    if total_infection_ratio < 13.0:
+    if total_infection_ratio < 20.0:
         return "Mild"
 
     # CASE 2: SEVERE
     # Logic: Contains a giant infected patch/blob (> 35%)
-    if largest_blob_ratio > 35.0:
+    if total_infection_ratio > 45.0 or largest_blob_ratio > 35.0:
         return "Severe"
 
     # CASE 3: MODERATE
