@@ -52,7 +52,7 @@ try:
 except Exception as e:
     print(f"❌ Error loading model: {e}")
 
-# --- SEVERITY LOGIC (OpenCV) ---
+# --- UPDATED SEVERITY LOGIC (Contour Based) ---
 def calculate_severity(image):
     # Convert PIL Image to OpenCV format (numpy array)
     img_array = np.array(image)
@@ -60,13 +60,17 @@ def calculate_severity(image):
     # Convert RGB to BGR (OpenCV standard)
     img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
     
-    # Convert to HSV for red detection
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # 1. Blur the image to remove noise/small reddish dots 
+    # This prevents counting tiny imperfections as "Severe"
+    blurred = cv2.GaussianBlur(img, (5, 5), 0)
     
-    # Define Red Ranges (Inflammation)
-    lower_red1 = np.array([0, 70, 50])
+    # Convert to HSV for red detection
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    
+    # Define Red Ranges (Slightly adjusted to avoid normal skin tones)
+    lower_red1 = np.array([0, 60, 50])
     upper_red1 = np.array([10, 255, 255])
-    lower_red2 = np.array([170, 70, 50])
+    lower_red2 = np.array([170, 60, 50])
     upper_red2 = np.array([180, 255, 255])
     
     # Create masks
@@ -74,15 +78,27 @@ def calculate_severity(image):
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = mask1 | mask2
     
-    # Calculate Ratio of Red Pixels
-    red_pixels = cv2.countNonZero(mask)
-    total_pixels = img.shape[0] * img.shape[1]
-    redness_ratio = (red_pixels / total_pixels) * 100
+    # 2. Find Contours (distinct shapes) instead of just pixel count
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Determine Logic
-    if redness_ratio < 5:
+    if not contours:
+        return "Mild"  # No distinct red shapes found
+
+    # 3. Find the LARGEST red spot only (The actual Lesion)
+    largest_contour = max(contours, key=cv2.contourArea)
+    lesion_area = cv2.contourArea(largest_contour)
+    total_area = img.shape[0] * img.shape[1]
+    
+    # 4. Calculate Percentage of the Lesion relative to image size
+    lesion_ratio = (lesion_area / total_area) * 100
+    
+    # 5. New Logic Thresholds
+    # < 1.0% = Mild (Small spot)
+    # 1.0% - 8.0% = Moderate (Visible patch)
+    # > 8.0% = Severe (Large area)
+    if lesion_ratio < 1.0:
         return "Mild"
-    elif redness_ratio < 15:
+    elif lesion_ratio < 8.0:
         return "Moderate"
     else:
         return "Severe"
