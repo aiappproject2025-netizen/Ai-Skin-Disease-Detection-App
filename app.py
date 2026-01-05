@@ -12,32 +12,38 @@ app = Flask(__name__)
 MODEL_PATH = "model1.tflite"
 CLASSES = ['Acne', 'Eczema', 'Psoriasis', 'Melanoma', 'Normal']
 
-# --- DATABASE ---
+# --- DATABASE (GEMINI STYLE DETAILED CONTENT) ---
 REMEDIES = {
     "Acne": {
-        "Mild": "Use Aloe Vera gel and Neem paste. Drink 3L water daily.",
-        "Moderate": "Use Salicylic Acid face wash. Avoid oily food.",
-        "Severe": "Consult a Dermatologist. Do not pop pimples!"
+        "Mild": "🟢 **MILD ACNE DETECTED**\n\n💡 **ADVICE:**\nYour skin is congested but it's early stage. No harsh chemicals needed.\n\n🌿 **REMEDY:**\nApply Aloe Vera gel at night. Use Neem paste on spots.\n\n🥗 **DIET:**\nDrink 3L water. Eat Cucumber & Carrots to reduce body heat.\n\n✅ **ROUTINE:**\nWash face twice a day. Do not touch your face.",
+        
+        "Moderate": "🟡 **MODERATE ACNE DETECTED**\n\n💡 **ADVICE:**\nOil production is high. You need active ingredients.\n\n🧪 **RECOMMENDATION:**\nUse a Face Wash with **Salicylic Acid** or **Niacinamide**.\n\n🥗 **DIET:**\nAvoid Oily food, Milk & Sweets for 1 week.\n\n🛍️ **PRODUCT:**\nBuy 'Minimalist Salicylic Acid' on Amazon.",
+        
+        "Severe": "🔴 **SEVERE ACNE (CYSTIC)**\n\n⚠️ **CLINICAL WARNING:**\nThis stage causes scarring. Home remedies will NOT work.\n\n🩺 **NEXT STEP:**\nConsult a Dermatologist immediately.\n\n🚫 **DON'T:**\nDo NOT pop pimples. Do NOT use lemon/toothpaste.\n\n💡 **INFO:**\nDoctors may suggest Carbon Peels for this."
     },
     "Eczema": {
-        "Mild": "Apply Coconut Oil or Shea Butter to moisturize.",
-        "Moderate": "Use mild, fragrance-free moisturizers.",
-        "Severe": "Requires prescription steroid creams. Visit a doctor."
+        "Mild": "🟢 **MILD ECZEMA (DRYNESS)**\n\n💡 **ADVICE:**\nSkin barrier is dry. Lock in the moisture.\n\n🌿 **REMEDY:**\nApply Coconut Oil immediately after bath.\n\n🥗 **DIET:**\nEat Omega-3 rich foods like Walnuts & Fish.\n\n✅ **ROUTINE:**\nUse lukewarm water for bathing (Not hot!).",
+        
+        "Moderate": "🟡 **MODERATE ECZEMA**\n\n💡 **ADVICE:**\nRedness and itching detected. Skin needs repair.\n\n🧪 **RECOMMENDATION:**\nUse creams with **Ceramides** or **Oatmeal**.\n\n🥗 **DIET:**\nAvoid Eggs & Citric fruits (Lemon) temporarily.\n\n🛍️ **PRODUCT:**\nUse 'Aveeno Dermexa' or 'Cetaphil' moisturizer.",
+        
+        "Severe": "🔴 **SEVERE ECZEMA**\n\n⚠️ **CLINICAL WARNING:**\nSkin may crack or bleed. Risk of infection.\n\n🩺 **NEXT STEP:**\nVisit a Doctor for Steroid Creams or UV Therapy.\n\n🚫 **DON'T:**\nDo not scratch! Wear cotton clothes only."
     },
     "Psoriasis": {
-        "Mild": "Expose skin to morning sunlight (Vitamin D).",
-        "Moderate": "Use coal tar salicylic acid shampoo/soap.",
-        "Severe": "Autoimmune condition. Urgent Dermatologist visit required."
+        "Mild": "🟢 **MILD PSORIASIS**\n\n💡 **ADVICE:**\nSmall scales detected. Keep skin hydrated.\n\n🌿 **REMEDY:**\nExpose skin to **Morning Sunlight** (Vit D) for 15 mins.\n\n🥗 **DIET:**\nAvoid Red Meat. Eat more leafy vegetables.\n\n✅ **ROUTINE:**\nApply thick moisturizer or Vaseline.",
+        
+        "Moderate": "🟡 **MODERATE PSORIASIS**\n\n💡 **ADVICE:**\nPatches are thickening. Need keratolytic agents.\n\n🧪 **RECOMMENDATION:**\nUse **Coal Tar** or **Salicylic Acid** based soap/shampoo.\n\n🥗 **DIET:**\nAvoid Alcohol and Spicy foods.\n\n🛍️ **PRODUCT:**\nSearch for 'Coal Tar Lotion' online.",
+        
+        "Severe": "🔴 **SEVERE PSORIASIS**\n\n⚠️ **CLINICAL WARNING:**\nWidespread scaling. Needs systemic treatment.\n\n🩺 **NEXT STEP:**\nConsult a Dermatologist for Biologics/Laser treatment.\n\n🚫 **DON'T:**\nDo not peel off the scales forcefully."
     },
     "Melanoma": {
-        "Mild": "CRITICAL ALERT: Visit an Oncologist immediately.",
-        "Moderate": "CRITICAL ALERT: Visit an Oncologist immediately.",
-        "Severe": "CRITICAL ALERT: Visit an Oncologist immediately."
+        "Mild": "⚠️ **CRITICAL ALERT: MELANOMA**\n\n🚨 **ACTION REQUIRED:**\nAI has detected irregular mole patterns indicative of Skin Cancer.\n\n🏥 **NEXT STEP:**\nThis cannot be treated at home. Visit an **Oncologist** immediately.\n\n📍 **GPS:**\nClick 'Find Dermatologist' button below.",
+        "Moderate": "⚠️ **CRITICAL ALERT: MELANOMA**\n\n🚨 **ACTION REQUIRED:**\nAI has detected irregular mole patterns indicative of Skin Cancer.\n\n🏥 **NEXT STEP:**\nThis cannot be treated at home. Visit an **Oncologist** immediately.\n\n📍 **GPS:**\nClick 'Find Dermatologist' button below.",
+        "Severe": "⚠️ **CRITICAL ALERT: MELANOMA**\n\n🚨 **ACTION REQUIRED:**\nAI has detected irregular mole patterns indicative of Skin Cancer.\n\n🏥 **NEXT STEP:**\nThis cannot be treated at home. Visit an **Oncologist** immediately.\n\n📍 **GPS:**\nClick 'Find Dermatologist' button below."
     },
     "Normal": {
-        "Mild": "You are healthy! Use Sunscreen (SPF 50) daily.",
-        "Moderate": "You are healthy! Use Sunscreen (SPF 50) daily.",
-        "Severe": "You are healthy! Use Sunscreen (SPF 50) daily."
+        "Mild": "✨ **HEALTHY SKIN DETECTED**\n\n🎉 **STATUS:**\nNo diseases found! Your skin is glowing.\n\n🧴 **MAINTENANCE:**\nApply **Sunscreen (SPF 50)** daily to prevent aging.\n\n💧 **ROUTINE:**\nCleanse -> Tone -> Moisturize.\n\n🥗 **DIET:**\nEat Vitamin C fruits (Orange/Guava).",
+        "Moderate": "✨ **HEALTHY SKIN DETECTED**\n\n🎉 **STATUS:**\nNo diseases found! Your skin is glowing.\n\n🧴 **MAINTENANCE:**\nApply **Sunscreen (SPF 50)** daily to prevent aging.\n\n💧 **ROUTINE:**\nCleanse -> Tone -> Moisturize.\n\n🥗 **DIET:**\nEat Vitamin C fruits (Orange/Guava).",
+        "Severe": "✨ **HEALTHY SKIN DETECTED**\n\n🎉 **STATUS:**\nNo diseases found! Your skin is glowing.\n\n🧴 **MAINTENANCE:**\nApply **Sunscreen (SPF 50)** daily to prevent aging.\n\n💧 **ROUTINE:**\nCleanse -> Tone -> Moisturize.\n\n🥗 **DIET:**\nEat Vitamin C fruits (Orange/Guava)."
     }
 }
 
@@ -102,20 +108,21 @@ def calculate_severity(image):
 
     print(f"DEBUG: Total: {total_infection_ratio:.2f}% | Blob: {largest_blob_ratio:.2f}%")
 
-    # --- FINAL THRESHOLDS (Calibrated to your Data) ---
+    # --- FINAL THRESHOLDS (Calibrated for Exam Demo) ---
     
     # CASE 1: MILD
-    # Logic: Little total coverage (< 13%)
+    # Logic: Coverage must be less than 40% to be Mild.
     if total_infection_ratio < 40.0:
         return "Mild"
 
     # CASE 2: SEVERE
-    # Logic: Contains a giant infected patch/blob (> 35%)
+    # Logic: Only if MORE THAN 80% is covered (Very rare).
+    # This prevents False Alarms.
     if total_infection_ratio > 80.0:
         return "Severe"
 
     # CASE 3: MODERATE
-    # Logic: High coverage but scattered (No giant blobs) OR Medium blobs (13-35%)
+    # Everything in between (40% - 80%)
     return "Moderate"
 
 # --- HOME ROUTE ---
@@ -148,10 +155,10 @@ def predict():
         disease_name = CLASSES[class_index]
         confidence = float(output_data[0][class_index]) * 100
         
-        # 3. Calculate Severity (Using High-Res Image + Updated Logic)
+        # 3. Calculate Severity (Using Updated Logic)
         severity_status = calculate_severity(image)
         
-        # 4. Fetch Remedy
+        # 4. Fetch Remedy (From New Gemini DB)
         advice = REMEDIES.get(disease_name, {}).get(severity_status, "Consult a doctor.")
 
         return jsonify({
